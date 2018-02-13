@@ -103,6 +103,18 @@ func (a TwitterApi) GetList(listID int64, v url.Values) (list List, err error) {
 	return list, (<-response_ch).err
 }
 
+
+// GetListBySlug implements /lists/show.json
+func (a TwitterApi) GetListBySlug(slug string, ownerScreenName string, v url.Values) (list List, err error) {
+	v = cleanValues(v)
+	v.Set("slug", slug)
+	v.Set("owner_screen_name", ownerScreenName)
+
+	response_ch := make(chan response)
+	a.queryQueue <- query{a.baseUrl + "/lists/show.json", v, &list, _GET, response_ch}
+	return list, (<-response_ch).err
+}
+
 func (a TwitterApi) GetListTweetsBySlug(slug string, ownerScreenName string, includeRTs bool, v url.Values) (tweets []Tweet, err error) {
 	v = cleanValues(v)
 	v.Set("slug", slug)
